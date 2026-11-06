@@ -1,0 +1,38 @@
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.sqlite3
+*.sqlite3-*
+media/
+staticfiles/
+node_modules/
+dist/
+.coverage
+htmlcov/
+.qa/
+*.log
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.blend1
+*.glb
+/data/*
+!/data/*.example
+
+# Ключи устройств симулятора
+simulator/sim-keys.json
+
+# Резервные копии баз и файлов
+*.bak
+
+# Встроенные модели нового фронтенда: импортируются модулями приложения
+!/frontend-twin/models/*.glb
+
+# Локальные архивы
+*.zip
+*.ZIP

@@ -1,0 +1,190 @@
+/* «Обход» — экран телефона в портрете: крупный шрифт, кнопки не ниже 52 px (работа в перчатках). */
+:root {
+  --accent: #137f75;
+  --accent-dark: #0d5f58;
+  --ink: #17212b;
+  --muted: #5f6b76;
+  --line: #d9dee3;
+  --surface: #ffffff;
+  --page: #f2f4f6;
+  --ok: #299f79;
+  --warn: #b7791f;
+  --error: #c53030;
+  color-scheme: light;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); min-height: 100dvh; overscroll-behavior-y: none; }
+#app { min-height: 100dvh; display: flex; flex-direction: column; }
+/* iPhone, установленный на «Домой»: строка состояния прозрачная (black-translucent) и белая —
+   под ней всегда фирменная полоса, чтобы часы были видны и на светлом экране входа. */
+body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; z-index: 10; height: env(safe-area-inset-top, 0px); background: var(--accent); }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { opacity: 0.45; cursor: default; }
+h1, h2, h3 { margin: 0; line-height: 1.2; }
+.muted { color: var(--muted); }
+
+/* Верхняя панель: учитываем вырез экрана и строку состояния Android. */
+.top-bar {
+  position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 8px;
+  min-height: 60px; padding: calc(env(safe-area-inset-top, 0px) + 6px) 12px 6px;
+  background: var(--accent); color: #fff;
+}
+.top-text { flex: 1; min-width: 0; }
+.top-title { font-size: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.top-subtitle { margin: 2px 0 0; font-size: 14px; opacity: 0.85; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.top-back, .top-action {
+  min-width: 48px; min-height: 48px; padding: 0 10px; border: 0; border-radius: 10px;
+  background: rgba(255, 255, 255, 0.14); color: #fff; font-size: 18px; font-weight: 600;
+}
+.top-back { font-size: 24px; }
+
+.screen-body { flex: 1; width: 100%; max-width: 640px; margin: 0 auto; padding: 14px 16px 24px; }
+.bottom-bar {
+  position: sticky; bottom: 0; z-index: 5; display: grid; gap: 8px;
+  padding: 10px 16px calc(env(safe-area-inset-bottom, 0px) + 10px);
+  background: var(--surface); border-top: 1px solid var(--line);
+}
+.big {
+  display: block; width: 100%; min-height: 54px; padding: 12px 16px; border-radius: 12px;
+  font-size: 18px; font-weight: 600; border: 2px solid var(--accent);
+}
+.primary { background: var(--accent); color: #fff; }
+.primary:active { background: var(--accent-dark); }
+.secondary { background: var(--surface); color: var(--accent); }
+.link { border: 0; background: none; color: var(--accent); padding: 10px 0; min-height: 44px; font-weight: 600; text-decoration: underline; }
+.screen-body > .big { margin-top: 12px; }
+
+.field { display: grid; gap: 6px; margin: 0 0 14px; font-weight: 600; }
+.field input, .field textarea, .check-note {
+  width: 100%; min-height: 52px; padding: 12px; border: 1px solid #b9c1c9; border-radius: 10px; background: #fff; font-weight: 400;
+}
+.field textarea { min-height: 96px; resize: vertical; }
+.message { margin: 10px 0; padding: 10px 12px; border-radius: 10px; background: #e9eef2; }
+.message:empty { display: none; }
+.message[data-state='ok'] { background: #e3f4ed; color: #17614b; }
+.message[data-state='error'] { background: #fde8e8; color: var(--error); }
+.warning { padding: 10px 12px; border-radius: 10px; background: #fff4dc; color: #7a5212; }
+.version { margin-top: 24px; text-align: center; }
+
+/* Вход */
+.login-page { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 22px; width: 100%; max-width: 460px; margin: 0 auto;
+  padding: calc(env(safe-area-inset-top, 0px) + 24px) 20px calc(env(safe-area-inset-bottom, 0px) + 24px); }
+.login-brand { text-align: center; }
+.login-icon { width: 88px; height: 88px; }
+.login-brand h1 { font-size: 30px; margin-top: 8px; }
+.login-card { padding: 18px; border-radius: 16px; background: var(--surface); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06); }
+.login-server { text-align: center; font-size: 15px; }
+
+/* Отправка осмотров */
+.sync-line { margin: 0 0 12px; padding: 8px 12px; border-radius: 10px; font-size: 15px; background: #e3f4ed; color: #17614b; }
+.sync-line[data-state='pending'], .sync-line[data-state='offline'] { background: #fff4dc; color: #7a5212; }
+.sync-line[data-state='error'] { background: #fde8e8; color: var(--error); }
+
+/* Маршруты */
+.route-cards, .stop-list, .event-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.route-card {
+  display: grid; gap: 4px; width: 100%; min-height: 72px; padding: 14px 16px; text-align: left;
+  border: 1px solid var(--line); border-left: 6px solid var(--accent); border-radius: 12px; background: var(--surface);
+}
+.route-card strong { font-size: 19px; }
+.route-card small { color: var(--muted); font-size: 15px; }
+.route-card.current { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(19, 127, 117, 0.25); }
+
+/* Шаги */
+.progress { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.progress-bar { flex: 1; height: 12px; border-radius: 6px; background: #dce3e8; overflow: hidden; }
+.progress-bar span { display: block; height: 100%; background: var(--ok); }
+.progress strong { font-size: 18px; }
+.stop-button {
+  display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 10px; width: 100%; min-height: 68px;
+  padding: 10px 12px; text-align: left; border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+}
+/* Миниатюра станка в списке шагов (4:3), колонка — только если картинки есть. */
+.with-images .stop-button { grid-template-columns: 40px 64px 1fr auto; }
+.stop-image { display: block; width: 64px; height: 48px; border-radius: 8px; object-fit: cover; background: #e8ecef; }
+.stop-number { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #e8ecef; font-weight: 700; }
+.stop-done .stop-number, .stop-pending .stop-number { background: var(--ok); color: #fff; }
+.stop-error .stop-number { background: var(--error); color: #fff; }
+.stop-text { display: grid; min-width: 0; }
+.stop-text strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stop-text small { color: var(--muted); font-size: 14px; }
+.stop-status { display: grid; justify-items: end; gap: 2px; font-size: 14px; }
+.done-note { margin: 0; text-align: center; font-weight: 600; color: var(--ok); }
+.badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 14px; font-weight: 600; color: #fff; background: var(--badge, #888); }
+
+/* Осмотр */
+/* Шапка осмотра: крупная картинка станка рядом с названием. */
+.inspection-hero { display: grid; grid-template-columns: minmax(120px, 44%) 1fr; gap: 12px; align-items: start; }
+.inspection-hero.no-image { grid-template-columns: 1fr; }
+.inspection-hero.no-image .inspection-image { display: none; }
+.inspection-image { display: block; width: 100%; aspect-ratio: 4 / 3; border-radius: 12px; object-fit: cover; background: #e8ecef; }
+.inspection-hero-text { min-width: 0; }
+.inspection-hero-text .link { display: block; text-align: left; }
+.station-photo { font-weight: 500; }
+/* Низ формы: неприметная «Пропустить станок», под ней узкая «← Назад» и широкая главная кнопка. */
+.inspection-bar { gap: 4px; }
+.skip-step { justify-self: center; min-height: 40px; padding: 6px 12px; font-weight: 500; font-size: 15px; color: var(--muted); }
+.step-buttons { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr); gap: 10px; }
+.step-buttons .big { padding: 12px 8px; }
+.inspection-title { font-size: 21px; overflow-wrap: anywhere; }
+.inspection .muted { margin: 4px 0 0; }
+.checklist { margin: 14px 0; padding: 0; border: 0; display: grid; gap: 14px; }
+.checklist legend { font-weight: 700; margin-bottom: 8px; }
+.check-row { display: grid; gap: 8px; padding: 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.check-text { font-weight: 600; }
+.segments { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.segment { position: relative; }
+.segment input { position: absolute; opacity: 0; inset: 0; }
+.segment span {
+  display: grid; place-items: center; min-height: 52px; padding: 6px; border-radius: 10px; text-align: center;
+  font-size: 15px; font-weight: 600; border: 2px solid var(--line); background: #fff;
+}
+.segment input:checked + span { background: var(--badge); border-color: var(--badge); color: #fff; }
+.segment input:focus-visible + span { outline: 3px solid #1a73e8; }
+.photos h3 { font-size: 17px; margin: 6px 0 10px; }
+.photo-buttons { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; }
+.photo-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.photo-strip:empty { display: none; }
+.photo-strip img, .photo-thumb img { width: 84px; height: 84px; object-fit: cover; border-radius: 10px; background: #dde3e8; }
+.photo-thumb { position: relative; }
+.photo-remove {
+  position: absolute; top: -8px; right: -8px; width: 34px; height: 34px; border-radius: 50%;
+  border: 2px solid #fff; background: var(--error); color: #fff; font-weight: 700;
+}
+
+/* Станок */
+.equipment-head { margin-bottom: 12px; }
+.condition-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 10px 0 14px; }
+.tab { min-height: 48px; border-radius: 10px; border: 2px solid var(--accent); background: #fff; color: var(--accent); font-weight: 600; }
+.tab.active { background: var(--accent); color: #fff; }
+.event { padding: 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 6px; }
+.event-meta { font-size: 14px; color: var(--muted); }
+.event-change { display: flex; align-items: center; gap: 6px; }
+.event-comment { margin: 0; white-space: pre-wrap; }
+.remarks { margin: 0; padding-left: 18px; }
+
+.photo-viewer { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; align-content: center; gap: 10px; background: rgba(0, 0, 0, 0.92); }
+.photo-viewer img { max-width: 100vw; max-height: 85dvh; object-fit: contain; }
+.photo-viewer p { color: #ccc; }
+.toast {
+  position: fixed; left: 16px; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 96px); z-index: 30;
+  padding: 12px 16px; border-radius: 12px; background: #17212b; color: #fff; text-align: center; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+/* Своё окно выбора («Сохранить изменения?»): снизу, крупные кнопки под палец. */
+.dialog-backdrop {
+  position: fixed; inset: 0; z-index: 30; display: flex; align-items: flex-end; justify-content: center;
+  padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px); background: rgba(23, 33, 43, 0.45);
+}
+.dialog { width: 100%; max-width: 460px; padding: 20px 18px 10px; border-radius: 16px; background: var(--surface); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); }
+.dialog-title { font-size: 20px; }
+.dialog-text { margin: 8px 0 0; color: var(--muted); }
+.dialog-buttons { display: grid; gap: 10px; margin-top: 18px; }
+.dialog-buttons .link { justify-self: center; }

@@ -1,0 +1,4 @@
+[
+  {"id": "m1", "name": "Смеситель", "kind": "machine", "subtype": "mixer", "x_m": 5, "y_m": 5, "w_m": 2, "d_m": 3, "h_m": 2},
+  {"id": "room1", "name": "Холодильная камера", "kind": "room", "x_m": 12, "y_m": 8, "w_m": 4, "d_m": 5, "h_m": 3}
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "oven-1",
+    "name": "Печь MIWE 1",
+    "kind": "machine",
+    "subtype": "oven",
+    "asset_code": "oven-miwe",
+    "x_m": -20,
+    "y_m": 10,
+    "pos_y": 0,
+    "rotation_deg": 0,
+    "w_m": 1.94,
+    "d_m": 1.55,
+    "h_m": 2.6
+  },
+  {
+    "id": "oven-2",
+    "name": "Печь MIWE 2",
+    "kind": "machine",
+    "subtype": "oven",
+    "asset_code": "oven-miwe",
+    "x_m": -25,
+    "y_m": 10,
+    "pos_y": 0,
+    "rotation_deg": 90,
+    "w_m": 1.94,
+    "d_m": 1.55,
+    "h_m": 2.6
+  },
+  {
+    "id": "oven-3",
+    "name": "Печь MIWE 3",
+    "kind": "machine",
+    "subtype": "oven",
+    "asset_code": "oven-miwe",
+    "x_m": -30,
+    "y_m": 10,
+    "pos_y": 0,
+    "rotation_deg": 180,
+    "w_m": 1.94,
+    "d_m": 1.55,
+    "h_m": 2.6
+  }
+]

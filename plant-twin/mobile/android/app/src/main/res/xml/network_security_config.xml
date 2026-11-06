@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Обход ходит к backend по http в локальной сети цеха (http://192.168.3.103:8000).
+     С Android 9 http (cleartext) по умолчанию запрещён. Адрес сервера задаётся на телефоне
+     и заранее неизвестен, поэтому http разрешён для всех адресов. Если backend будет по https,
+     достаточно поставить cleartextTrafficPermitted="false". -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

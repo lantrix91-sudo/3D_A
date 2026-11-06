@@ -1,0 +1,8 @@
+node_modules
+dist
+dist-single
+test-shots
+*.tsbuildinfo
+
+# Локальные настройки разработки
+.env.local

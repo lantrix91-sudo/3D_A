@@ -1,0 +1,11 @@
+{
+  "appId": "kz.planttwin.obhod",
+  "appName": "Обход",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "http"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
