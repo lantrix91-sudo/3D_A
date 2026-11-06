@@ -1,0 +1,27 @@
+# Shared hygiene for the actual Git root (plant-twin is a subdirectory).
+.env
+.env.*
+!.env.example
+*.sqlite3
+*.sqlite3-*
+db.sqlite3
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+dist/
+backend/media/
+backend/staticfiles/
+*.log
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.blend1
+*.glb
+.pytest_cache/
+.coverage
+htmlcov/
+.qa/
+data/*
+!data/*.example
