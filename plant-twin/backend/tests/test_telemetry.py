@@ -15,7 +15,7 @@ from django.utils import timezone
 
 from equipment.device_keys import issue_key
 from equipment.ingest import IngestError, ingest
-from equipment.live import GROUP
+from equipment.live import GROUP, snapshot
 from equipment.models import DeviceKey, Equipment, EquipmentType, IngestPacket, Reading
 from equipment.offline import mark_offline
 from plants.models import Plant, Zone
@@ -236,6 +236,28 @@ def test_plan_shows_offline_before_watchdog(client, user, device):
     assert item["status"] == "offline" and item["last_seen"] is not None
 
 
+def test_packet_without_ts_is_not_offline_and_values_in_snapshot(client, zone):
+    """Тип без правил статуса: статус не определён, но связь есть и значения отдаются."""
+    numbers = [{"key": "t1", "name": "T1", "unit": "°C", "kind": "number"},
+               {"key": "t2", "name": "T2", "unit": "°C", "kind": "number"}]
+    plain = EquipmentType.objects.create(code="fridge-t", name="Холодильник", signal_templates=numbers, offline_seconds=180)
+    fridge = Equipment.objects.create(code="f1", name="Холодильник 1", zone=zone, type=plain, device_id="fridge-01",
+                                      require_device_key=False)
+    Equipment.objects.filter(pk=fridge.pk).update(status="offline", last_seen=timezone.now() - timedelta(hours=1))
+
+    response = post(client, {"device_id": "fridge-01", "values": {"t1": 5.4, "t2": 5.1}})
+    assert response.status_code == 201 and response.json()["status"] == "unknown"
+
+    assert mark_offline() == []  # Сторож не возвращает в offline сразу после пакета.
+    fridge.refresh_from_db()
+    assert fridge.status == "unknown"
+    assert abs((timezone.now() - fridge.last_seen).total_seconds()) < 5
+
+    item = next(entry for entry in snapshot() if entry["equipment"] == "f1")
+    assert item["status"] == "unknown" and item["values"] == {"t1": 5.4, "t2": 5.1} and item["faults"] == []
+    assert item["offline_seconds"] == 180 and abs(time.time() - item["last_seen"]) < 5
+
+
 def test_check_offline_command(device):
     ingest("dev-1", {"state": "run"}, ts=now_ts(-200))
     out = StringIO()
@@ -293,6 +315,47 @@ def test_key_stored_only_as_hash_and_last_used(client, device, key):
 def test_unauthenticated_devices_flag(client, device, settings):
     settings.ALLOW_UNAUTHENTICATED_DEVICES = True
     assert post(client, {"device_id": "dev-1", "values": {"power": 1}}).status_code == 201
+
+
+def test_key_not_required_accepts_packet_without_header(client, device):
+    Equipment.objects.filter(pk=device.pk).update(require_device_key=False)
+    response = post(client, {"device_id": "dev-1", "ts": now_ts(-1), "values": {"power": 1}})
+    assert response.status_code == 201
+    assert Reading.objects.count() == 1
+
+
+def test_key_not_required_accepts_batch_without_header(client, device):
+    Equipment.objects.filter(pk=device.pk).update(require_device_key=False)
+    body = {"device_id": "dev-1", "readings": [{"ts": now_ts(-2), "seq": 1, "values": {"power": 1}},
+                                               {"ts": now_ts(-1), "seq": 2, "values": {"power": 2}}]}
+    response = post(client, body)
+    assert response.status_code == 201 and response.json()["accepted"] == 2
+
+
+def test_key_not_required_still_rejects_invalid_key(client, device, key):
+    Equipment.objects.filter(pk=device.pk).update(require_device_key=False)
+    body = {"device_id": "dev-1", "values": {"power": 1}}
+    response = post(client, body, "ptd_wrong")
+    assert response.status_code == 401 and response.json()["error"]["code"] == "device_key_invalid"
+    DeviceKey.objects.filter(equipment=device).update(revoked_at=timezone.now())
+    response = post(client, body, key)
+    assert response.status_code == 401 and response.json()["error"]["code"] == "device_key_invalid"
+    assert not Reading.objects.exists()
+
+
+def test_key_required_by_default_rejects_missing_header(client, device):
+    assert device.require_device_key is True
+    body = {"device_id": "dev-1", "values": {"power": 1}}
+    response = post(client, body)
+    assert response.status_code == 401 and response.json()["error"]["code"] == "device_key_missing"
+    batch = post(client, {"device_id": "dev-1", "readings": [{"values": {"power": 1}}]})
+    assert batch.status_code == 401 and batch.json()["error"]["code"] == "device_key_missing"
+    assert not Reading.objects.exists()
+
+
+def test_unknown_device_without_header_is_404(client, device):
+    response = post(client, {"device_id": "ghost", "values": {"power": 1}})
+    assert response.status_code == 404 and response.json()["error"]["code"] == "unknown_device"
 
 
 def test_unauthenticated_flag_rejected_in_production(monkeypatch):

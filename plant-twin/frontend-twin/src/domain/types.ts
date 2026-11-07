@@ -95,7 +95,7 @@ export type RunState = 'running' | 'stopped';
 export type CommState = 'ok' | 'lost' | 'unknown';
 
 /** Итоговое состояние для отображения (выводится из независимых составляющих). */
-export type DisplayState = 'running' | 'stopped' | 'warning' | 'alarm' | 'maintenance' | 'no_comm' | 'no_sensors' | 'decommissioned';
+export type DisplayState = 'running' | 'stopped' | 'warning' | 'alarm' | 'maintenance' | 'no_comm' | 'no_sensors' | 'data_only' | 'decommissioned';
 
 export type EventType =
   | 'warning_start'

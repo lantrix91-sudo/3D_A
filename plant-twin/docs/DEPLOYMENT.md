@@ -27,7 +27,9 @@ DJANGO_READ_DOT_ENV=false
 
 ## Текущий frontend-twin
 
-Есть `npm ci`, `npm run build`, результат `dist/`. Для отдельных доменов перед сборкой задайте `VITE_API_URL=https://backend.example.com` и `VITE_WS_URL=wss://backend.example.com`. Dockerfile, Nginx-конфигурация и railway.json для frontend-twin пока не найдены: готового рецепта контейнерного деплоя в репозитории нет. Их нужно подготовить отдельно; эта уборка не добавляет инфраструктуру приложения.
+В `frontend-twin/` есть `Dockerfile` (сборка Vite → Nginx), `nginx.conf.template` и `railway.json`, healthcheck `/`. Для сервиса frontend задайте Root Directory `/frontend-twin` и Variables `VITE_API_URL=https://backend.example.com`, `VITE_WS_URL=wss://backend.example.com`: Dockerfile объявляет их как ARG, после смены значений нужна новая сборка.
+
+Деплой без GitHub выполняется из папки `plant-twin/`, потому что архив должен содержать папку из Root Directory: `railway up --service backend`, `railway up --service frontend`.
 
 Прежняя схема frontend вынесена в [old/DEPLOYMENT-frontend.md](old/DEPLOYMENT-frontend.md). Текущий mobile описан в [MOBILE.md](MOBILE.md).
 

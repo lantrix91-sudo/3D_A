@@ -9,6 +9,8 @@ export const STATE_META: Record<DisplayState, { label: string; color: string; cs
   maintenance: { label: 'На обслуживании', color: '#8b7cf6', cssVar: '--st-maint', glyph: '⚒' },
   no_comm: { label: 'Нет связи', color: '#d65db1', cssVar: '--st-nocomm', glyph: '⊘' },
   no_sensors: { label: 'Без датчиков', color: '#6f8796', cssVar: '--st-none', glyph: '○' },
+  // Связь есть, но сервер не может определить работу станка: у типа нет правил статуса
+  data_only: { label: 'Данные поступают', color: '#3d8fb8', cssVar: '--st-data', glyph: '◌' },
   // Только режим сервера: Equipment.condition = decommissioned
   decommissioned: { label: 'Выведено из работы', color: '#4f565c', cssVar: '--st-none', glyph: '✕' },
 };

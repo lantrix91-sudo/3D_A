@@ -77,10 +77,15 @@ export function EquipmentCard() {
               {eq.server.deviceId !== undefined && <div><dt>Устройство</dt><dd>{eq.server.deviceId ?? <span className="muted">не привязано</span>}</dd></div>}
             </>
           )}
-          <div>
+          <div className="card__passport-model">
             <dt>3D-модель</dt>
             <dd>
-              {model3d ? <>{model3d.fileName} · {model3d.dims.map((d) => d.toFixed(2)).join(' × ')} м</> : <span className="muted">условная</span>}
+              {model3d ? (
+                <span className="card__model-line">
+                  <span className="card__model-name" title={model3d.fileName}>{model3d.fileName}</span>
+                  <span className="card__model-dims">· {model3d.dims.map((d) => d.toFixed(2)).join(' × ')} м</span>
+                </span>
+              ) : <span className="muted">условная</span>}
               {modelError && <span className="card__model-error" role="alert">Не загрузилась: {modelError}</span>}
             </dd>
           </div>

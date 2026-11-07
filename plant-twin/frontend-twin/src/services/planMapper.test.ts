@@ -106,6 +106,51 @@ describe('живые данные', () => {
     expect(computeLive(entry({ status: 'offline' }), true, 1000_000).equipment.serverState).toBe('no_comm');
     expect(computeLive(entry({ status: 'unknown', last_seen: 1000, offline_seconds: 30 }), true, 1031_000).equipment.serverState).toBe('no_comm');
   });
+
+  describe('статус unknown при свежих данных (тип без правил статуса)', () => {
+    const fridge = (over: Partial<LiveEntry> = {}) => entry({
+      equipment: 'Miwe_1', status: 'unknown', offline_seconds: 180,
+      values: { t1: 22.4, t2: 28 },
+      signals: { t1: { name: 'T1', unit: '°C', kind: 'number' }, t2: { name: 'T2', unit: '°C', kind: 'number' } },
+      ...over,
+    });
+
+    it('связь есть, значения показываются, работа неизвестна', () => {
+      const live = computeLive(fridge(), true, 1009_000);
+      expect(live.equipment.serverState).toBe('data_only');
+      expect(live.equipment.comm).toBe('ok');
+      expect(live.equipment.commSince).toBeNull();
+      expect(live.equipment.runState).toBe('unknown');
+      expect(live.sensors['Miwe_1.t1']).toMatchObject({ hasData: true, lastValue: 22.4 });
+    });
+
+    it('после таймаута — снова «Нет связи» и нет свежих значений', () => {
+      const live = computeLive(fridge(), true, 1181_000);
+      expect(live.equipment.serverState).toBe('no_comm');
+      expect(live.equipment.comm).toBe('lost');
+      expect(live.equipment.commSince).toBe(1000_000);
+      expect(live.sensors['Miwe_1.t1'].hasData).toBe(false);
+    });
+
+    it('без единого пакета — ожидание данных, а не потеря связи', () => {
+      const live = computeLive(fridge({ ts: null, last_seen: null, values: {} }), true, 1009_000);
+      expect(live.equipment.serverState).toBe('no_comm');
+      expect(live.equipment.comm).toBe('unknown');
+      expect(live.equipment.commSince).toBeNull();
+    });
+
+    it('серверный offline не отменяется, даже если время ещё не вышло', () => {
+      const live = computeLive(fridge({ status: 'offline' }), true, 1009_000);
+      expect(live.equipment.serverState).toBe('no_comm');
+      expect(live.equipment.comm).toBe('lost');
+      expect(live.sensors['Miwe_1.t1'].hasData).toBe(false);
+    });
+
+    it('без привязанного устройства остаётся «Без датчиков»', () => {
+      expect(computeLive(fridge(), false, 1009_000).equipment.serverState).toBe('no_sensors');
+    });
+  });
+
   it('показания и статус попадают в формат интерфейса', () => {
     const live = computeLive(entry(), true, 1000_000 + 1000);
     expect(live.equipment.serverState).toBe('running');

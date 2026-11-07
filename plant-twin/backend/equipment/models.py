@@ -118,6 +118,7 @@ class Equipment(models.Model):
                               related_name="equipment", verbose_name="Ассет")
     type = models.ForeignKey(EquipmentType, on_delete=models.PROTECT, related_name="equipment", verbose_name="Тип оборудования")
     device_id = models.CharField("ID устройства", max_length=200, unique=True, null=True, blank=True)
+    require_device_key = models.BooleanField(default=True, verbose_name="Требовать ключ устройства")
     is_active = models.BooleanField("Активно", default=True)
     status = models.CharField("Статус", max_length=10, choices=Status.choices, default=Status.UNKNOWN, editable=False)
     last_seen = models.DateTimeField("Последние данные", null=True, blank=True, editable=False)

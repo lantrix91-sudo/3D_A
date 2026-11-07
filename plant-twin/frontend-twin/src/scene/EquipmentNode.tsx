@@ -3,6 +3,7 @@ import { Component, memo, Suspense, useEffect, useMemo, useRef, type ReactNode }
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { useRegistry } from '../domain/config';
 import { effectiveModel, equipmentSize, PROCEDURAL_OFFSET, reportModelError, reportModelSize, useModels } from '../services/models3d';
+import { hideUrls } from '../utils/url';
 import { useCollision } from '../services/collision';
 import { useWalls } from '../services/walls';
 import { useSceneUi } from './labels';
@@ -668,8 +669,9 @@ class ModelErrorBoundary extends Component<{ eqId: string; url: string; fallback
     return { failed: true };
   }
   componentDidCatch(e: unknown) {
-    const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
-    console.error(`[scene] 3D-модель ${this.props.eqId} не загружена`, e);
+    // Загрузчик пишет в сообщение полный адрес файла, а в нём подпись доступа к bucket
+    const msg = hideUrls(e instanceof Error ? `${e.name}: ${e.message}` : String(e));
+    console.error(`[scene] 3D-модель ${this.props.eqId} не загружена: ${msg}`);
     reportModelError(this.props.eqId, msg);
     if (this.state.attempt < 3) {
       this.timer = window.setTimeout(() => {

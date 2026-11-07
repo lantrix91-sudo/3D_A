@@ -133,9 +133,9 @@ class EquipmentAdmin(admin.ModelAdmin):
 
     actions = ["delete_without_history"]
 
-    list_display = ["code", "name", "zone", "type", "condition", "pos_x", "pos_z", "rotation_deg", "device_id", "status", "last_seen"]
+    list_display = ["code", "name", "zone", "type", "condition", "pos_x", "pos_z", "rotation_deg", "device_id", "require_device_key", "status", "last_seen"]
     list_editable = ["device_id"]
-    list_filter = ["zone", "type", "is_active", "condition"]
+    list_filter = ["zone", "type", "is_active", "condition", "require_device_key"]
     search_fields = ["code", "name", "device_id", "serial_number", "inventory_number"]
     autocomplete_fields = ["zone", "type", "asset"]
     fieldsets = [
@@ -144,7 +144,7 @@ class EquipmentAdmin(admin.ModelAdmin):
         ("Паспорт", {"fields": ["manufacturer", "model_name", "serial_number", "inventory_number",
                                 "commissioned_on", "service_contact", "notes"]}),
         # Состояние меняется из карточки в приложении, чтобы всегда оставался след в истории.
-        ("Состояние", {"fields": ["condition", "condition_changed_at", "device_id", "status", "last_seen", "status_changed_at"]}),
+        ("Состояние", {"fields": ["condition", "condition_changed_at", "device_id", "require_device_key", "status", "last_seen", "status_changed_at"]}),
     ]
     readonly_fields = ["condition", "condition_changed_at", "status", "last_seen", "status_changed_at"]
     inlines = [DocumentInline, SignalInline, DeviceKeyInline]

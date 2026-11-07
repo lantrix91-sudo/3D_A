@@ -41,6 +41,7 @@ export const SCREEN_COLORS: Record<DisplayState, { bg: string; fg: string; sub: 
   maintenance: { bg: '#5a4bc6', fg: '#ffffff', sub: '#e6e2ff' },
   no_comm: { bg: '#7c3a71', fg: '#ffffff', sub: '#f3dcef' },
   no_sensors: { bg: '#3e505d', fg: '#ffffff', sub: '#d9e3ea' },
+  data_only: { bg: '#1f6a8f', fg: '#ffffff', sub: '#d8edf7' },
   decommissioned: { bg: '#3a3f44', fg: '#ffffff', sub: '#d0d4d8' },
 };
 

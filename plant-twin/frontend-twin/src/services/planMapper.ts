@@ -214,13 +214,18 @@ function signalText(meta: LiveSignalMeta, value: unknown): string | null {
  * Устаревание: сервер сообщает об отключении устройства только из фонового check_offline, а без Redis
  * такие события из отдельного процесса не доходят. Поэтому браузер сам считает данные устаревшими,
  * если истёк переданный сервером offline_seconds от last_seen. Серверный статус при этом не переписывается.
+ *
+ * Связь и работа станка — разные вопросы. unknown значит, что сервер не может определить работу станка
+ * (например, у типа нет правил статуса). Если при этом пакеты приходят, связь есть и значения показываются.
  */
 export function computeLive(entry: LiveEntry, hasTelemetry: boolean, nowMs: number): ComputedLive {
   const tsMs = entry.last_seen != null ? entry.last_seen * 1000 : null;
   const stale = tsMs != null && nowMs - tsMs > entry.offline_seconds * 1000;
-  const telemetry: DisplayState = stale ? 'no_comm' : statusToDisplay(entry.status, hasTelemetry);
+  const lost = stale || entry.status === 'offline';
+  const fresh = !lost && (entry.status !== 'unknown' || tsMs != null);
+  const dataOnly = fresh && entry.status === 'unknown' && hasTelemetry;
+  const telemetry: DisplayState = stale ? 'no_comm' : dataOnly ? 'data_only' : statusToDisplay(entry.status, hasTelemetry);
   const display: DisplayState = conditionToDisplay(entry.condition) ?? telemetry;
-  const fresh = !stale && entry.status !== 'offline' && entry.status !== 'unknown';
 
   const sensors: Record<string, SensorLive> = {};
   for (const [key, meta] of Object.entries(entry.signals)) {
@@ -249,8 +254,8 @@ export function computeLive(entry: LiveEntry, hasTelemetry: boolean, nowMs: numb
       runState: display === 'running' ? 'running' : display === 'stopped' ? 'stopped' : 'unknown',
       runSince: null,
       // Связь не зависит от технического состояния: у станка в ремонте датчик может продолжать работать
-      comm: telemetry === 'no_comm' ? 'lost' : fresh ? 'ok' : 'unknown',
-      commSince: telemetry === 'no_comm' ? tsMs : null,
+      comm: lost ? 'lost' : fresh ? 'ok' : 'unknown',
+      commSince: lost ? tsMs : null,
       level: display === 'alarm' ? 'alarm' : 'normal',
       lastGoodTs: tsMs,
       serverState: display,
@@ -271,6 +276,8 @@ export function statusChangeMessage(state: DisplayState): { message: string; sev
       return { message: 'Сервер сообщил об аварии', severity: 'alarm' };
     case 'no_comm':
       return { message: 'Нет связи с устройством', severity: 'warning' };
+    case 'data_only':
+      return { message: 'Данные поступают, статус работы не определён', severity: 'info' };
     case 'running':
       return { message: 'Работает', severity: 'info' };
     case 'stopped':

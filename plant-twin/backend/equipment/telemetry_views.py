@@ -34,25 +34,27 @@ def record_args(record, where):
 
 
 def authorize_device(request, device_id):
-    raw = request.headers.get("X-Device-Key", "")
-    if not raw:
-        if settings.ALLOW_UNAUTHENTICATED_DEVICES:
-            return
-        raise TelemetryError("device_key_missing", "Требуется заголовок X-Device-Key.", 401)
-    if check_key(device_id, raw):
-        return
-    if not Equipment.objects.filter(device_id=device_id.strip()).exists():
+    key_required = Equipment.objects.filter(device_id=device_id.strip()).values_list("require_device_key", flat=True).first()
+    if key_required is None:
         raise TelemetryError("unknown_device", f"Устройство «{device_id}» не привязано к оборудованию.", 404)
-    raise TelemetryError("device_key_invalid", "Ключ устройства неверен или отозван.", 401)
+    raw = request.headers.get("X-Device-Key", "")
+    if raw:
+        # Переданный ключ проверяется всегда, даже если оборудованию он не обязателен.
+        if check_key(device_id, raw):
+            return
+        raise TelemetryError("device_key_invalid", "Ключ устройства неверен или отозван.", 401)
+    if key_required and not settings.ALLOW_UNAUTHENTICATED_DEVICES:
+        raise TelemetryError("device_key_missing", "Требуется заголовок X-Device-Key.", 401)
 
 
 class ReadingsView(APIView):
-    """Приём телеметрии от устройств. Авторизация — X-Device-Key, не JWT."""
+    """Приём телеметрии от устройств. Авторизация — X-Device-Key (не JWT), если он не отключён у оборудования."""
     authentication_classes = []
     permission_classes = [AllowAny]
 
     @extend_schema(
-        parameters=[OpenApiParameter("X-Device-Key", str, OpenApiParameter.HEADER, required=True)],
+        parameters=[OpenApiParameter("X-Device-Key", str, OpenApiParameter.HEADER, required=False,
+                                     description="Обязателен, если у оборудования включено require_device_key.")],
         request=dict, responses={200: dict, 201: dict},
         description="Одиночный пакет {device_id, ts, seq, values, faults} или пакет {device_id, readings: [...]}; "
                     "см. docs/TELEMETRY.md.",

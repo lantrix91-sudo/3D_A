@@ -18,6 +18,7 @@ import type { Equipment, Model3D } from '../domain/types';
 import { assetModelId } from './planMapper';
 import type { Repository } from '../storage/repository';
 import { newId } from '../utils/id';
+import { fileNameFromUrl } from '../utils/url';
 
 /**
  * 3D-модели оборудования (GLB / glTF с вложенными данными). Файл хранится в IndexedDB как Blob
@@ -213,7 +214,7 @@ export function registerServerModel(asset: PlanAsset | null) {
         url: asset.url!,
         scale: 1,
         dims: [asset.size.x, asset.size.y, asset.size.z],
-        fileName: asset.url!.split('/').pop() ?? asset.code,
+        fileName: fileNameFromUrl(asset.url!, asset.code),
         keepOrigin: true,
         statusNode: asset.led_node_name,
       },

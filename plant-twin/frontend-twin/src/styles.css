@@ -19,6 +19,7 @@
   --st-maint: #8b7cf6;
   --st-nocomm: #d65db1;
   --st-none: #6f8796;
+  --st-data: #2f7ea6;
   --chart-line: #9cc3e6;
   --chart-grid: #26303a;
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
@@ -47,6 +48,7 @@
     --st-maint: #6a55e0;
     --st-nocomm: #b73b93;
     --st-none: #6a7b86;
+  --st-data: #5aa7cf;
     --chart-line: #2f6ea3;
     --chart-grid: #dfe5e9;
     --shadow: 0 10px 30px rgba(30, 40, 50, 0.18);
@@ -71,6 +73,7 @@
   --st-maint: #6a55e0;
   --st-nocomm: #b73b93;
   --st-none: #6a7b86;
+  --st-data: #5aa7cf;
   --chart-line: #2f6ea3;
   --chart-grid: #dfe5e9;
   --shadow: 0 10px 30px rgba(30, 40, 50, 0.18);
@@ -382,6 +385,7 @@ textarea.input { resize: vertical; min-height: 60px; }
 .eq-item--maintenance { --sc: var(--st-maint); }
 .eq-item--no_comm { --sc: var(--st-nocomm); }
 .eq-item--no_sensors { --sc: var(--st-none); }
+.eq-item--data_only { --sc: var(--st-data); }
 .eq-item:hover { border-color: var(--line-strong); }
 .eq-item.is-selected { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 .eq-item .pill { align-self: start; }
@@ -825,6 +829,10 @@ textarea.input { resize: vertical; min-height: 60px; }
 .panel-error code { font-family: var(--font-data); font-size: 11px; white-space: pre-wrap; word-break: break-word; color: var(--st-alarm); }
 .panel-error__row { display: flex; gap: 6px; flex-wrap: wrap; }
 
+.card__passport-model { grid-column: 1 / -1; }
+.card__model-line { display: flex; gap: 6px; min-width: 0; white-space: nowrap; }
+.card__model-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.card__model-dims { flex: none; }
 .card__model-error { display: block; margin-top: 4px; color: var(--st-alarm); font-size: 11px; word-break: break-word; }
 
 /* ---------- панель «Экраны» ---------- */

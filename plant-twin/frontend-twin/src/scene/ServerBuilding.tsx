@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { PlanZone } from '../api/types';
 import { useServer } from '../store/serverStore';
+import { fileNameFromUrl, hideUrls } from '../utils/url';
 
 /**
  * GLB цеха из zone.model_url поверх чертежа. Модель сдвинута той же привязкой zone.plan_offset, что и
@@ -51,7 +52,7 @@ class HallBoundary extends Component<{ url: string; children: ReactNode }, { fai
     return { failed: true };
   }
   componentDidCatch(e: unknown) {
-    console.error(`[scene] модель здания не загружена: ${this.props.url}`, e);
+    console.error(`[scene] модель здания ${fileNameFromUrl(this.props.url)} не загружена: ${hideUrls(String(e))}`);
   }
   render() {
     return this.state.failed ? null : this.props.children;

@@ -116,7 +116,8 @@ python simulator/simulate.py --devices sim-01,sim-02 --keys-file simulator/sim-k
 | `stop` | Остановлено |
 | `alarm` | Авария |
 | `offline` | Нет связи |
-| `unknown`, устройство привязано | Нет связи |
+| `unknown`, устройство привязано, данные свежие | Данные поступают (связь есть, значения показываются, работа не определена) |
+| `unknown`, устройство привязано, данных ещё не было | Нет связи, в карточке «Ожидание данных» |
 | `unknown`, устройство не привязано (`has_telemetry: false`) | Без датчиков |
 | данных нет дольше `VITE_STALE_SECONDS` | Нет связи (серверный статус не перезаписывается) |
 
@@ -206,4 +207,4 @@ python simulator/simulate.py --devices sim-01,sim-02 --keys-file simulator/sim-k
 - GLB и новые типы оборудования создаются только в админке Django: отдельного списка типов в API нет, поэтому форма предлагает типы из плана.
 - Зоны с `visible_by_default: false` не показываются: переключателя зон пока нет.
 - Анимация из `rotation_speed_deg_s` и `animation_node_name`, а также поле `condition` пока не используются.
-- Для production нет Dockerfile и настройки Railway. Работа с бэкендом на отдельном домене не проверялась: для GLB потребуется CORS на `/media`.
+- Для production есть Dockerfile и настройка Railway (см. `docs/DEPLOYMENT.md`). Работа с бэкендом на отдельном домене не проверялась: для GLB потребуется CORS на `/media`.
