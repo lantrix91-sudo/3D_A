@@ -362,8 +362,11 @@ def test_unauthenticated_flag_rejected_in_production(monkeypatch):
     import subprocess
     import sys
     env = {"DJANGO_READ_DOT_ENV": "false", "SECRET_KEY": "x" * 60, "DEBUG": "false", "REDIS_URL": "redis://r:6379/0",
-           "ALLOW_UNAUTHENTICATED_DEVICES": "true", "DJANGO_SETTINGS_MODULE": "config.settings", "SYSTEMROOT": "C:\\Windows"}
-    result = subprocess.run([sys.executable, "-c", "import django; django.setup()"], env=env, capture_output=True, text=True)
+           "ALLOW_UNAUTHENTICATED_DEVICES": "true", "DJANGO_SETTINGS_MODULE": "config.settings", "SYSTEMROOT": "C:\\Windows",
+           # без этого на Windows подпроцесс пишет stderr в cp1251 и кириллица в сообщении не декодируется
+           "PYTHONUTF8": "1"}
+    result = subprocess.run([sys.executable, "-c", "import django; django.setup()"], env=env, capture_output=True,
+                            text=True, encoding="utf-8", errors="replace")
     assert result.returncode != 0 and "ALLOW_UNAUTHENTICATED_DEVICES" in result.stderr
 
 

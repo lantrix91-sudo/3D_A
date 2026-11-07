@@ -25,3 +25,10 @@ htmlcov/
 .qa/
 data/*
 !data/*.example
+backup/
+backups/
+*.zip
+*.sql
+*.bak
+# выгрузка базы для переноса: хэши паролей и ключей устройств
+data.json
