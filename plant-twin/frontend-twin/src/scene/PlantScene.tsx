@@ -22,6 +22,7 @@ import { EquipmentNode } from './EquipmentNode';
 import { equipmentSize } from '../services/models3d';
 import { allReadings, keyReading, screenMeshes } from './infoScreen';
 import { LabelProjector, SceneLabels, useSceneUi } from './labels';
+import { LABEL_MODE_TEXT, nextLabelMode, setLabelMode, useLabelMode } from './labelMode';
 import { PlacementPanel } from './PlacementPanel';
 import { PlantBuilding } from './PlantBuilding';
 import { reportBlocked } from '../services/collision';
@@ -282,6 +283,7 @@ function SceneTools() {
   const showHall = useApp((s) => s.settings?.ui.showHall ?? false);
   const listHidden = useApp((s) => s.settings?.ui.listCollapsed ?? false);
   const screensOpen = useScreensPanel((s) => s.open);
+  const labelMode = useLabelMode((s) => s.mode);
   const panels = useApp((s) => s.settings?.ui.panels) ?? { card: false, events: false, ppr: false };
   // Редактор стен и расстановка — только с правом записи
   const canEdit = useServer((s) => s.canEdit);
@@ -318,6 +320,11 @@ function SceneTools() {
       <button type="button" className="btn btn--ghost btn--sm" aria-pressed={underlay} onClick={() => setUi({ underlay: !underlay })}
         title="Показать чертёж на полу">
         План на полу: {underlay ? 'вкл' : 'выкл'}
+      </button>
+      <button type="button" className={`btn btn--sm scene-tools__labels${labelMode === 'all' ? ' btn--ghost' : ' is-on'}`}
+        onClick={() => setLabelMode(nextLabelMode(labelMode))}
+        title="Подписи оборудования: все (дальние гаснут) / только выбранный и проблемные (авария, нет связи) / выкл">
+        Подписи: {LABEL_MODE_TEXT[labelMode]}
       </button>
       <button type="button" className="btn btn--ghost btn--sm" aria-pressed={showHall} onClick={() => setUi({ showHall: !showHall })}
         title="Наложить GLB-модель цеха с сервера на чертёж, чтобы проверить привязку">

@@ -465,6 +465,15 @@ textarea.input { resize: vertical; min-height: 60px; }
 .scene-label__state { font-size: 11px; font-weight: 600; color: var(--c); }
 .scene-label__state i { font-style: normal; }
 .scene-label__value { font-family: var(--font-data); font-size: 11px; color: var(--fg-muted); }
+.scene-label__type { font-size: 11px; color: var(--fg-muted); }
+/* точка статуса: цвет из STATE_META (без датчиков — серая, работа — зелёная, авария — красная, нет связи — розовая) */
+.scene-label__dot { display: inline-block; width: 8px; height: 8px; margin-right: 5px; border-radius: 50%; background: var(--c); vertical-align: 1px; box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 40%, transparent); }
+/* компактная подпись: только название и точка, без цветной кромки и показаний */
+.scene-label.is-compact { padding: 2px 6px; border-left-width: 1px; background: color-mix(in srgb, var(--panel) 78%, transparent); }
+.scene-label.is-compact .scene-label__name { font-size: 11px; }
+.scene-label.is-compact .scene-label__name b { display: none; }
+.scene-label.is-full .scene-label__dot { display: none; }
+.scene-tools__labels.is-on { border-color: var(--accent); color: var(--accent); }
 .scene-fallback { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; }
 .scene-fallback__box {
   max-width: 460px;
