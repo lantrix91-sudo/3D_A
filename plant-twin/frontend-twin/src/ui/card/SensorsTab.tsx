@@ -1,5 +1,6 @@
 import { EQUIPMENT_BY_ID, sensorsOf } from '../../domain/config';
-import { useServer } from '../../store/serverStore';
+import { isConnectionDegraded } from '../../services/connectionAlert';
+import { useConnectionAlert } from '../common/useConnectionAlert';
 import type { EquipmentId } from '../../domain/types';
 import { PERIOD_LABEL, type Period } from '../../services/history';
 import { setUi } from '../../services/telemetryHub';
@@ -11,7 +12,7 @@ export function SensorsTab({ equipmentId }: { equipmentId: EquipmentId }) {
   const live = useApp((s) => s.live);
   const period = useApp((s) => s.settings?.ui.period ?? '15m');
   const now = useClock((s) => s.now);
-  const connection = useServer((s) => s.connection);
+  const degraded = isConnectionDegraded(useConnectionAlert());
   const sensors = sensorsOf(equipmentId);
   // Устройство не привязано или у типа нет сигналов. Подключают это в админке, а не здесь
   if ((!sensors.length || !EQUIPMENT_BY_ID[equipmentId]?.server?.hasTelemetry)) {
@@ -26,7 +27,7 @@ export function SensorsTab({ equipmentId }: { equipmentId: EquipmentId }) {
 
   return (
     <div className="sensors">
-      {connection !== 'online' && (
+      {degraded && (
         <p className="notice">Нет связи с сервером: показаны последние полученные значения.</p>
       )}
       <div className="readings">

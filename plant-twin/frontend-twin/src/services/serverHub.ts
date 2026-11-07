@@ -5,7 +5,7 @@ import { EQUIPMENT, EQUIPMENT_BY_ID, SENSOR_BY_ID, removeEquipment, upsertEquipm
 import type { AppEvent, DisplayState, Equipment, EquipmentId } from '../domain/types';
 import type { EquipmentLive, SensorLive } from '../engine/alarmEngine';
 import { toast, useApp } from '../store/appStore';
-import { useServer } from '../store/serverStore';
+import { setConnection, useServer } from '../store/serverStore';
 import { newId } from '../utils/id';
 import type { Period, SeriesResult } from './history';
 import { PERIOD_MS, buildSeries } from './history';
@@ -56,7 +56,7 @@ export async function bootServerMode() {
 /** Вход уже был, но сервер не отвечает: основной экран с пустыми данными и статусом «Сервер: нет связи» */
 function showOffline() {
   prepareServerRuntime(null);
-  useServer.setState({ connection: 'offline' });
+  setConnection('offline');
   publishLive();
   useApp.setState({ phase: 'ready' });
   window.setTimeout(retryConnection, OFFLINE_RETRY_MS);
@@ -144,7 +144,7 @@ async function openPlan() {
       handleEntry(item, true);
       publishLive();
     },
-    onConnection: (connection) => useServer.setState({ connection }),
+    onConnection: setConnection,
   });
   window.setInterval(checkStale, 5000);
 }

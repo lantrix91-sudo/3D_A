@@ -55,6 +55,14 @@ assert settings.DEBUG is False
 assert settings.SESSION_COOKIE_SECURE and settings.CSRF_COOKIE_SECURE
 assert settings.SECURE_HSTS_SECONDS > 0
 assert settings.CHANNEL_LAYERS['default']['BACKEND'] == 'channels_redis.core.RedisChannelLayer'
+# Таймаут сокета больше ожидания BZPOPMIN, иначе простой канала рвёт WebSocket (redis-py 8: по умолчанию 5 с)
+from channels_redis.core import RedisChannelLayer
+redis_host = settings.CHANNEL_LAYERS['default']['CONFIG']['hosts'][0]
+assert redis_host['address'] == 'redis://127.0.0.1:6379/0'
+assert redis_host['socket_timeout'] >= RedisChannelLayer.brpop_timeout + 5
+assert redis_host['health_check_interval'] > 0 and redis_host['socket_keepalive'] is True
+pool = RedisChannelLayer(**settings.CHANNEL_LAYERS['default']['CONFIG']).create_pool(0)
+assert pool.connection_kwargs['socket_timeout'] == redis_host['socket_timeout']
 client = Client()
 response = client.get('/health/', HTTP_HOST='healthcheck.railway.app')
 assert response.status_code == 200 and response.json() == {'status': 'ok'}

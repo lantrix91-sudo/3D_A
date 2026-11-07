@@ -165,9 +165,18 @@ h1, h2, h3, h4 { margin: 0; font-family: var(--font-display); text-wrap: balance
   border-radius: 4px;
   border: 1px solid var(--line-strong);
   color: var(--fg-muted);
+  /* Постоянная ширина под самый длинный текст «Сервер: переподключение…»: шапка не прыгает */
+  display: inline-block;
+  width: 26ch;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.server-status.is-on { color: var(--fg); border-color: var(--st-run); }
-.server-status.is-off { border-style: dashed; }
+.server-status.is-ok { color: var(--fg); border-color: var(--st-run); }
+.server-status.is-connecting { border-style: dashed; }
+.server-status.is-reconnecting { color: var(--fg); border-color: var(--st-warn); background: color-mix(in srgb, var(--st-warn) 14%, transparent); }
+.server-status.is-lost, .server-status.is-forbidden { color: var(--st-alarm); border-color: var(--st-alarm); background: color-mix(in srgb, var(--st-alarm) 10%, transparent); }
 .topbar__right { display: flex; align-items: center; gap: 12px; }
 .clock { white-space: nowrap; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; }
 .clock b { font-family: var(--font-data); font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; }
@@ -658,6 +667,8 @@ textarea.input { resize: vertical; min-height: 60px; }
 .toast--error { border-left-color: var(--st-alarm); }
 .toast--info { border-left-color: var(--accent); }
 .storage-warning { margin: 0; padding: 8px 12px; border: 1px solid var(--st-alarm); color: var(--st-alarm); border-radius: var(--r); }
+.connection-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.connection-banner .link-btn { flex: none; color: inherit; }
 .boot { height: 100%; display: grid; place-items: center; padding: 16px; }
 .boot__box { display: flex; flex-direction: column; gap: 8px; align-items: center; text-align: center; }
 .boot__box b { font-family: var(--font-display); font-size: 22px; }

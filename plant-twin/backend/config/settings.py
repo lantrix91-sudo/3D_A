@@ -119,7 +119,16 @@ REDIS_URL = os.getenv("REDIS_URL", "")
 if REDIS_URL:
     CHANNEL_LAYERS = {"default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {"hosts": [REDIS_URL]},
+        # channels_redis ждёт сообщения командой BZPOPMIN по 5 с, а в redis-py 8 таймаут сокета тоже 5 с:
+        # чтение обрывалось раньше ответа Redis, и WebSocket закрывался каждые ~6 с без событий.
+        # socket_timeout должен быть заметно больше brpop_timeout (см. tests/test_deployment.py).
+        "CONFIG": {"hosts": [{
+            "address": REDIS_URL,
+            "socket_timeout": 15,
+            "socket_connect_timeout": 5,
+            "socket_keepalive": True,
+            "health_check_interval": 30,  # PING перед командой на соединении, простоявшем дольше 30 с
+        }]},
     }}
 elif DEBUG:
     CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}

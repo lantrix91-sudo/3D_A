@@ -12,7 +12,7 @@ import { KpiStrip } from './ui/KpiStrip';
 import { MaintenanceOverview } from './ui/MaintenanceOverview';
 import { Toasts } from './ui/Toasts';
 import { LoginScreen } from './ui/LoginScreen';
-import { useServer } from './store/serverStore';
+import { useConnectionAlert } from './ui/common/useConnectionAlert';
 import { PanelBoundary } from './ui/common/PanelBoundary';
 
 const PlantScene = lazy(() => import('./scene/PlantScene'));
@@ -24,7 +24,8 @@ export default function App() {
   const placeMode = useApp((s) => s.placeMode);
   const listCollapsed = useApp((s) => s.settings?.ui.listCollapsed ?? false) && isWebGLAvailable();
   const editing = wallEdit || placeMode;
-  const connection = useServer((s) => s.connection);
+  const link = useConnectionAlert();
+  const [bannerHidden, setBannerHidden] = useState(false);
   const panels = useApp((s) => s.settings?.ui.panels) ?? defaultPanels();
   const desktop = useDesktop();
   const gridStyle = desktop ? layoutGrid(panels, !editing && listCollapsed, editing) : undefined;
@@ -32,6 +33,11 @@ export default function App() {
   useEffect(() => {
     void initApp();
   }, []);
+
+  // Связь вернулась — скрытие сбрасывается: при следующем долгом обрыве предупреждение покажется снова
+  useEffect(() => {
+    if (!link.banner) setBannerHidden(false);
+  }, [link.banner]);
 
   // Нет действующего токена: сначала вход
   if (phase === 'login') return <LoginScreen />;
@@ -62,12 +68,15 @@ export default function App() {
   return (
     <div className="app">
       <Header />
-      {(connection === 'offline' || connection === 'forbidden') && (
-        <p className="storage-warning" role="alert">
-          {connection === 'forbidden'
-            ? 'У пользователя нет роли для получения статусов. Роль назначается в админке Django.'
-            : 'Нет связи с сервером: цвета и показания могут быть устаревшими. Соединение восстанавливается автоматически.'}
-        </p>
+      {link.banner && !bannerHidden && (
+        <div className="storage-warning connection-banner" role="alert">
+          <span>
+            {link.chip === 'forbidden'
+              ? 'У пользователя нет роли для получения статусов. Роль назначается в админке Django.'
+              : 'Нет связи с сервером больше 2 минут: цвета и показания могут быть устаревшими. Соединение восстанавливается автоматически.'}
+          </span>
+          <button type="button" className="link-btn" onClick={() => setBannerHidden(true)}>Скрыть</button>
+        </div>
       )}
       <PanelBoundary name="сводка"><KpiStrip /></PanelBoundary>
       <main className={`layout${editing ? ' is-editing' : ''}${!editing && listCollapsed ? ' list-collapsed' : ''}`} style={gridStyle}>

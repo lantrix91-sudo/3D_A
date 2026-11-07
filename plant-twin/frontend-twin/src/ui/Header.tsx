@@ -4,6 +4,8 @@ import { useServer } from '../store/serverStore';
 import { DEFAULT_PLANT_NAME } from '../storage/settings';
 import { useApp, useClock } from '../store/appStore';
 import { formatDate, formatTimeSec } from '../utils/time';
+import { CHIP_LABEL } from '../services/connectionAlert';
+import { useConnectionAlert } from './common/useConnectionAlert';
 
 const THEME_KEY = 'bakery-twin.theme';
 type ThemeChoice = 'system' | 'dark' | 'light';
@@ -33,7 +35,7 @@ export function Header() {
     }
   });
 
-  const connection = useServer((s) => s.connection);
+  const link = useConnectionAlert();
   const username = useServer((s) => s.username);
   const canEdit = useServer((s) => s.canEdit);
   const canEditWalls = useServer((s) => s.canEditWalls);
@@ -68,8 +70,10 @@ export function Header() {
 
       {/* Состояние соединения с сервером и пользователь */}
       <div className="server-panel" aria-label="Подключение к серверу">
-        <span className={`server-status ${connection === 'online' ? 'is-on' : 'is-off'}`} title="Соединение WebSocket /ws/v1/live/">
-          Сервер: {connection === 'online' ? 'на связи' : connection === 'connecting' ? 'подключение…' : connection === 'forbidden' ? 'нет прав' : 'нет связи'}
+        {/* Ширина постоянная: смена текста не сдвигает шапку. Короткий обрыв (до 60 с) не показывается */}
+        <span className={`server-status is-${link.chip}`} role="status"
+          title={link.since && link.chip !== 'ok' ? `Соединение WebSocket /ws/v1/live/ · нет связи с ${formatTimeSec(link.since)}` : 'Соединение WebSocket /ws/v1/live/'}>
+          Сервер: {CHIP_LABEL[link.chip]}
         </span>
         {/* Пока сервер недоступен, имя пользователя неизвестно */}
         {username && (

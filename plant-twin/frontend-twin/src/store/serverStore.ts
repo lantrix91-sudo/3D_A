@@ -10,6 +10,10 @@ import type { LiveConnection } from '../api/live';
 export interface ServerState {
   /** Состояние WebSocket: online — статусы актуальны, offline — могут быть устаревшими */
   connection: LiveConnection;
+  /** С какого момента нет связи (мс); null — связь есть. Индикатор показывает обрыв только после паузы */
+  offlineSince: number | null;
+  /** Была ли связь хоть раз за сеанс */
+  everOnline: boolean;
   username: string;
   roles: string[];
   /** Можно ли двигать, добавлять и удалять оборудование (поле can_edit_layout из /plan/) */
@@ -26,6 +30,8 @@ export interface ServerState {
 
 export const useServer = create<ServerState>(() => ({
   connection: 'connecting',
+  offlineSince: Date.now(),
+  everOnline: false,
   username: '',
   roles: [],
   canEdit: false,
@@ -34,3 +40,10 @@ export const useServer = create<ServerState>(() => ({
   types: [],
   assets: [],
 }));
+
+/** Сменить состояние сокета. Время обрыва запоминается при первом уходе из online и не сдвигается переподключениями */
+export function setConnection(connection: LiveConnection) {
+  useServer.setState((s) => connection === 'online'
+    ? { connection, offlineSince: null, everOnline: true }
+    : { connection, offlineSince: s.offlineSince ?? Date.now() });
+}
